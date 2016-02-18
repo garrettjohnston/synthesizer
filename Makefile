@@ -1,4 +1,4 @@
 all:
-	g++ -std=c++11 -Ioperations -Iprograms -I. *.h *.hpp
+	g++ -std=c++11 main.cpp
 clean:
-	rm *~ *.gch
+	rm -f *~ *.gch a.out

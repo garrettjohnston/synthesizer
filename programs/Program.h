@@ -2,29 +2,24 @@
 #define __PIE_PROGRAM_H__
 
 #include <functional>
-#include <tuple>
+#include <vector>
 
-#include "Operation.h"
-#include "Type.h"
+#include "../operations/Operation.h"
+#include "../Type.h"
+#include "../values/Value.h"
 
-// Other possible names: Function, Feature
-//template<typename ResT>
 class Program {
 public:
   // Constructor
   Program() {} ;
-  int evaluate(std::tuple<int> input);
-  bool resolvesConflict();
+  Program(Operation op, std::vector<Program*> ps): operation(op), children(ps) {}
+  Value evaluate(std::vector<Value> input);
+  bool resolvesConflict() { return false; }
   
-  Program* left;
-  Program* right;
-  Operation<int, int> operation;
+  std::vector<Program*> children;
+  Operation operation;
   Type getType();
 };
-
-bool Program::resolvesConflict() {
-	return false;
-}
 
 
 #endif

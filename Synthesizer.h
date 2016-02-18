@@ -4,27 +4,28 @@
 #include <vector>
 #include <map>
 
-#include "Program.h"
-#include "Operation.h"
+#include "programs/Program.h"
+#include "operations/Operation.h"
 #include "Type.h"
 
 template<typename ResT, typename ArgT>
 class Synthesizer {
 public:
   // Constructor
-  Synthesizer(std::map<ArgT, ResT> functionMap);
+  // TODO pass in std::map<ArgT, ResT>& functionMap
+  Synthesizer();
   Program findNewFeature();
-  std::vector<Operation<ResT, ArgT>> getOperations(Type type);
+  std::vector<Program> getPrograms(int level, Type type);
   
   // Vector of Programs by level
   std::vector<std::vector<Program>> intPrograms;
   std::vector<std::vector<Program>> boolPrograms;
   std::vector<std::vector<Program>> stringPrograms; 
   
-  // Vector of operations by type returned
-  std::vector<Operation<ResT, ArgT>> intOperations;
-  std::vector<Operation<ResT, ArgT>> boolOperations;
-  std::vector<Operation<ResT, ArgT>> stringOperations;
+  // Group operations by arg type
+  std::map<std::vector<Type>, std::vector<Operation>> allOperations;
+  void pushOperation(Operation op);
 };
 
+#include "Synthesizer.hpp"
 #endif

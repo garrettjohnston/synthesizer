@@ -1,19 +1,32 @@
-#ifndef __PIE_ADD_OP_H__
-#define __PIE_ADD_OP_H__
+#ifndef __PIE_OPERATIONS_ADD_OP_H__
+#define __PIE_OPERATIONS_ADD_OP_H__
 
 #include <functional>
-#include <utility>
+#include <vector>
+#include <stdexcept>
 
 #include "Operation.h"
-#include "Type.h"
+#include "../Type.h"
+#include "../values/Value.h"
+#include "../values/VInt.h"
 
-class AddOp: public Operation<int, std::pair<int, int>> {
+class AddOp: public Operation {
 public:
   AddOp() {
-  	f = [](std::pair<int, int> a) { return a.first + a.second; };
-  	retType = IntegerT;
-  	leftType = IntegerT;
-  	rightType = IntegerT;
+  	f = [](std::vector<Value> args) {
+  		if (args.size() != 2) {
+  			//TODO: Add to end of string -- but was given" + std::to_string(args.size())
+  			throw std::invalid_argument("AddOp requires 2 args");
+  		} else {
+  			VInt arg1 = *dynamic_cast<VInt*>(&(args[0]));
+  			VInt arg2 = *dynamic_cast<VInt*>(&(args[1]));
+  			return VInt( arg1.val + arg2.val);
+  		}
+  	};
+  		
+  	retType = TInt;
+  	argTypes.push_back(TInt);
+  	argTypes.push_back(TInt);
   }
 };
 

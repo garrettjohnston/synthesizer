@@ -2,14 +2,16 @@
 #define __PIE_OPERATION_H__
 
 #include <functional>
-#include "Type.h"
+#include <list>
 
-template<typename ResT, typename ArgT>
+#include "../Type.h"
+#include "../values/Value.h"
+
 class Operation {
 public:
-	std::function<ResT(ArgT)> f;
-	Type retType, leftType, rightType;
-	
+	std::function<Value(std::vector<Value>)> f;
+	std::vector<Type> argTypes;
+	Type retType;
 };
 
 #endif

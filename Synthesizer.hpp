@@ -1,35 +1,38 @@
-#ifndef __PIE_SYNTHESIZER_HPP__
-#define __PIE_SYNTHESIZER_HPP__
+#ifndef __PIE_SYNTHESIZER_CPP__
+#define __PIE_SYNTHESIZER_CPP__
 
 #include <vector>
 #include <map>
 #include <iostream>
 
 #include "Synthesizer.h"
-#include "Program.h"
-#include "ZeroProgram.h"
-#include "OneProgram.h"
-#include "InputProgram.h"
-#include "AddOp.h"
-#include "MultiplyOp.h"
-#include "GreaterThanOp.h"
-#include "LessThanOp.h"
-#include "IntEqualsOp.h"
+#include "programs/Program.h"
+#include "programs/ZeroProgram.h"
+#include "programs/OneProgram.h"
+#include "programs/InputProgram.h"
+#include "operations/AddOp.h"
+#include "operations/MultiplyOp.h"
+#include "operations/GreaterThanOp.h"
+#include "operations/LessThanOp.h"
+#include "operations/IntEqualsOp.h"
 
 // Constructor
-// TODO: 
+// TODO: think more about storing programs in vectors by Type (prog return type)
 template<typename ResT, typename ArgT>
-Synthesizer<ResT, ArgT>::Synthesizer(std::map<ArgT,ResT> functionMap) {
+Synthesizer<ResT, ArgT>::Synthesizer() {
 	std::vector<Program> level0Programs;
 	level0Programs.push_back(ZeroProgram());
 	level0Programs.push_back(OneProgram());
 	level0Programs.push_back(InputProgram(0));
 	
-	intOperations.push_back(AddOp());
-	intOperations.push_back(MultiplyOp());
-	boolOperations.push_back(GreaterThanOp());
-	boolOperations.push_back(LessThanOp());
-	boolOperations.push_back(IntEqualsOp());
+	std::vector<Operation> ops;
+	
+	pushOperation(AddOp());
+	pushOperation(MultiplyOp());
+	pushOperation(GreaterThanOp());
+	pushOperation(LessThanOp());
+	pushOperation(IntEqualsOp());
+	std::cout << "I'm alive!";
 	
 	intPrograms.push_back(level0Programs);
 }
@@ -38,30 +41,31 @@ Synthesizer<ResT, ArgT>::Synthesizer(std::map<ArgT,ResT> functionMap) {
 template<typename ResT, typename ArgT>
 Program Synthesizer<ResT, ArgT>::findNewFeature() {
 	// Check level 0 programs for viable features
+	/*
 	for (std::vector<Program>::iterator it = intPrograms.at(0); it != intPrograms.at(0).end(); it++) {
 		if (it->resolvesConflict()) {
 			return NULL;
 		}
-		std::cout << "Hello there";
-		
-	}
+	}*/
 	int level = 1;
-	while(level < 5) {
+	int count = 0;
+	while(level < 2) {
 	/*
-		for op : BinaryOps {
-			for Program p1 : programs.level(l-1).type(op.inputType) {
-				for level L in 0-level l-1 {
-					for Program p2 : programs.level(L).type(op.inputType) {
-						new Program(op, p1, p2).addToList(L, returnType).
+		std::vector<Program> newPrograms;
+		for (auto op : getOperations(IntegerT)) {
+			for (auto program1 : getPrograms(level - 1, IntegerT)) {
+				for (int innerLevel = 0; innerLevel < level; innerLevel++) {
+					for (auto program2 : getPrograms(innerLevel, IntegerT)) {
+						std::cout << " " << count << " ";
+						Program newProgram(op, &program1, &program2);
+						newPrograms.push_back(newProgram);
+						count++;
+					}
 				}
 			}
 		}
+		intPrograms.push_back(newPrograms);
 	*/
-	 	// construct list of programs/functions at level level
-	 	// for each operation available, take all from level level - 1,
-	 	// as left operand, and any others as right operand.
-	 	// Just go through the lists grabbing the ones with the right
-	 	// return values that match the operation signature
 	 	level++;
 	}
 	
@@ -70,14 +74,29 @@ Program Synthesizer<ResT, ArgT>::findNewFeature() {
 
 
 template<typename ResT, typename ArgT>
-std::vector<Operation<ResT, ArgT>> Synthesizer<ResT, ArgT>::getOperations(Type type) {
+std::vector<Program> Synthesizer<ResT, ArgT>::getPrograms(int level, Type type) {
 	switch(type) {
-		case IntegerT:
-			return intOperations;
-		case BooleanT:
-			return boolOperations;
-		case StringT:
-			return stringOperations;
+		case TInt:
+			return intPrograms.at(level);
+		case TBool:
+			return boolPrograms.at(level);
+		case TStr:
+			return stringPrograms.at(level);
+	}
+}
+
+
+// Adds an operation to the allOperations map
+template<typename ResT, typename ArgT>
+void Synthesizer<ResT, ArgT>::pushOperation(Operation op) {
+	auto search = allOperations.find(op.argTypes);
+	if (search != allOperations.end()) {
+		auto vec = search->second;
+		vec.push_back(op);
+	} else {
+		std::vector<Operation> newVec;
+		newVec.push_back(op);
+		allOperations.insert({op.argTypes, newVec});
 	}
 }
    

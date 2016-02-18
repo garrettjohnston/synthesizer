@@ -1,19 +1,29 @@
-#ifndef __PIE_IDENTITY_OP_H__
-#define __PIE_IDENTITY_OP_H__
+#ifndef __PIE_OPERATIONS_IDENTITY_OP_H__
+#define __PIE_OPERATIONS_IDENTITY_OP_H__
 
 #include <functional>
+#include <vector>
+#include <stdexcept>
 
 #include "Operation.h"
-#include "Type.h"
+#include "../Type.h"
+#include "../values/Value.h"
+#include "../values/VInt.h"
 
-class IdentityOp: public Operation<int, int> {
-public:  
+class IdentityOp: public Operation {
+public:
   IdentityOp() {
-  	f = [](int a) { return a; };
-  	// TODO: pass in Type as argument to constructor, based on "input" type
-  	retType = IntegerT;
-  	leftType = IntegerT;
-  	rightType = IntegerT;
+  	f = [](std::vector<Value> args) {
+  		if (args.size() != 1) {
+  			//TODO: Add to end of string -- but was given" + std::to_string(args.size())
+  			throw std::invalid_argument("IdentityOp requires 1 arg");
+  		} else {
+  			return args[0];
+  		}
+  	};
+  		
+  	retType = TInt;
+  	argTypes.push_back(TInt);
   }
 };
 

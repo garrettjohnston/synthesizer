@@ -5,7 +5,8 @@
 #include <tuple>
 
 #include "Program.h"
-#include "SelectorOp.h"
+#include "../operations/SelectorOp.h"
+#include "../values/Value.h"
 
 //template<typename inputTypes...>
 class InputProgram: public Program {
@@ -14,8 +15,8 @@ public:
     index = i;
   }
   
-  int evaluate(std::tuple<int> inputs) {
-  	return std::get<0>(inputs);
+  Value evaluate(std::vector<Value> inputs) {
+  	return VInt(17);
   };	
 
   int index;
