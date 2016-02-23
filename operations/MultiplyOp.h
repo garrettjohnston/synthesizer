@@ -23,9 +23,9 @@ public:
   			return VInt( arg1.val * arg2.val);
   		}
   	};
-  	retType = TInt;
-  	argTypes.push_back(TInt);
-  	argTypes.push_back(TInt);
+  	retType = Type::TInt;
+  	argTypes.push_back(Type::TInt);
+  	argTypes.push_back(Type::TInt);
   }
 };
 

@@ -11,20 +11,19 @@
 template<typename ResT, typename ArgT>
 class Synthesizer {
 public:
-  // Constructor
-  // TODO pass in std::map<ArgT, ResT>& functionMap
-  Synthesizer();
-  Program findNewFeature();
-  std::vector<Program> getPrograms(int level, Type type);
-  
-  // Vector of Programs by level
-  std::vector<std::vector<Program>> intPrograms;
-  std::vector<std::vector<Program>> boolPrograms;
-  std::vector<std::vector<Program>> stringPrograms; 
-  
-  // Group operations by arg type
-  std::map<std::vector<Type>, std::vector<Operation>> allOperations;
-  void pushOperation(Operation op);
+    // TODO pass in std::map<ArgT, ResT>& functionMap
+    Synthesizer();
+    Program findNewFeature();
+    std::vector<Program> getPrograms(Type returnType, int level);
+    void pushOperation(Operation op);
+    void pushProgram(Program p, int level);
+
+private:
+    // Map from Program return type to vector (by level) of vectors of Programs
+    std::map<Type, std::vector<std::vector<Program>>> allPrograms;
+
+    // Map from operations arg type to operations
+    std::map<std::vector<Type>, std::vector<Operation>> allOperations;
 };
 
 #include "Synthesizer.hpp"

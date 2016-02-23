@@ -4,8 +4,8 @@
 
 int main (int argc, char *argv[]) { 
 
-	std::cout << "Hello from main." << std::endl;
 	Synthesizer<int, int> s;
+	auto var = s.findNewFeature();
 	std::cout << "Goodbye from main." << std::endl;
 }
 

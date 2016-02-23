@@ -24,9 +24,9 @@ public:
   			return VBool( arg1.val < arg2.val);
   		}
   	};
-  	retType = TBool;
-  	argTypes.push_back(TInt);
-  	argTypes.push_back(TInt);
+  	retType = Type::TBool;
+  	argTypes.push_back(Type::TInt);
+  	argTypes.push_back(Type::TInt);
   }
 };
 

@@ -22,8 +22,8 @@ public:
   		}
   	};
   		
-  	retType = TInt;
-  	argTypes.push_back(TInt);
+  	retType = Type::TInt;
+  	argTypes.push_back(Type::TInt);
   }
 };
 
