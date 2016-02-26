@@ -12,19 +12,14 @@
 
 class SelectorOp: public Operation {
 public:
-  SelectorOp() {
-  	f = [](std::vector<Value> args) { 
-  		if (args.size() != 1) {
-  			//TODO: Add to end of string -- but was given" + std::to_string(args.size())
-  			throw std::invalid_argument("SelectorOp requires 1 arg");
-  		} else {
-  			VInt arg1 = *dynamic_cast<VInt*>(&(args[0]));
-  			return VInt(42); // TODO: actually implement this
-  		}
+  SelectorOp(int index) {
+    // Function takes as input, the vector of input values, followed by an index of which one to return
+  	f = [index](std::vector<Value> args) {
+      return args.at(index); //TODO Fix this
   	};
   		
-  	retType = Type::TInt;
-  	argTypes.push_back(Type::TInt);
+  	retType = Type::TStr; // Shouldn't really need any types here, as we never refer to this operator except at level 0
+  	argTypes.push_back(Type::TStr);
   }
 };
 

@@ -4,12 +4,16 @@
 #include <string>
 
 #include "Value.h"
+#include "../Type.h"
 
 class VStr : public Value {
 public:
 	VStr(std::string v): val(v) {};
 	std::string val;
-	int something() { return 1; }
+	Type getType() { return TStr; }
+	std::string toString() {
+		std::string s("Str " + val);
+	}
 };
 
 #endif

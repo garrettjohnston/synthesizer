@@ -15,8 +15,7 @@ public:
   AddOp() {
   	f = [](std::vector<Value> args) {
   		if (args.size() != 2) {
-  			//TODO: Add to end of string -- but was given" + std::to_string(args.size())
-  			throw std::invalid_argument("AddOp requires 2 args");
+  			throw std::invalid_argument("AddOp requires 2 args but was given " + std::to_string(args.size()));
   		} else {
   			VInt arg1 = *dynamic_cast<VInt*>(&(args[0]));
   			VInt arg2 = *dynamic_cast<VInt*>(&(args[1]));

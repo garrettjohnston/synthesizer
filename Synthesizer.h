@@ -18,12 +18,16 @@ public:
     void pushOperation(Operation op);
     void pushProgram(Program p, int level);
 
+    void printAllOperations();
+
 private:
     // Map from Program return type to vector (by level) of vectors of Programs
     std::map<Type, std::vector<std::vector<Program>>> allPrograms;
 
     // Map from operations arg type to operations
     std::map<std::vector<Type>, std::vector<Operation>> allOperations;
+
+    std::vector<Value> inputs;
 };
 
 #include "Synthesizer.hpp"
