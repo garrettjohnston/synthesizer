@@ -4,75 +4,39 @@
 #include <functional>
 #include <vector>
 #include <string>
+#include <map>
 
 #include "../operations/Operation.h"
 #include "../Type.h"
 #include "../values/Value.h"
 
+class ProgramContainer;
+
 class Program {
 public:
     Program();
-    Program(Operation op, std::vector<Program*> ps);
-    virtual Value evaluate(std::vector<Value> input);
+    Program(Operation * op);
+    Program(Operation* op, std::vector<std::tuple<Type, int, int>> ch);
+    Value evaluate(std::vector<Value>& input);
     bool resolvesConflict();
-    Type getType();
     std::string printableType();
     std::string toString();
+    std::string printId();
+    Type getType();
 
     static int count;
-    std::vector<Program*> children;
-    Operation operation;
+    Type type;
+    // Store children as a tuple of <Type, level, index> to retrieve it from programs vector
+    std::vector<std::tuple<Type, int, int>> children;
+    Operation* operation;
     int id;
+
+    static ProgramContainer* programContainer;
 };
 
-
-Program::Program() {
-    id = count++;
-}
-
-
-Program::Program(Operation op, std::vector<Program*> ps): operation(op), children(ps) {
-    id = count++;
-}
-
-
-Value Program::evaluate(std::vector<Value> input) {
-    std::vector<Value> vals;
-    for (auto &it : children) {
-        vals.push_back(it->evaluate(input));
-    }
-    return operation.f(vals);
-}
-
-
-Type Program::getType() {
-    return operation.retType;
-}
-
-
-bool Program::resolvesConflict() {
-    return false;
-}
-
-
-std::string Program::printableType() {
-    return TypeNames[static_cast<int>(operation.retType)];
-}
-
-
-std::string Program::toString() {
-    std::string s("id ");
-    if (children.size() == 0) {
-        s += std::to_string(id);
-    } else if (children.size() == 1) {
-        s += std::to_string(id) + ", L " + std::to_string(children[0]->id);
-    } else if (children.size() == 2) {
-        s += std::to_string(id) + ", L " + std::to_string(children[0]->id) + ", R " + std::to_string(children[1]->id);
-    } else {
-        s += ("More than 2 children");
-    }
-    return s;
-}
-
+// static initialization
 int Program::count = 0;
+ProgramContainer* Program::programContainer = NULL;
+
 #endif
+#include "Program.hpp"

@@ -5,6 +5,7 @@
 #include <map>
 
 #include "programs/Program.h"
+#include "ProgramContainer.h"
 #include "operations/Operation.h"
 #include "Type.h"
 
@@ -14,21 +15,22 @@ public:
     // TODO pass in std::map<ArgT, ResT>& functionMap
     Synthesizer();
     Program findNewFeature();
-    std::vector<Program> getPrograms(Type returnType, int level);
-    void pushOperation(Operation op);
-    void pushProgram(Program p, int level);
-
+    void pushOperation(Operation* op);
     void printAllOperations();
 
 private:
-    // Map from Program return type to vector (by level) of vectors of Programs
-    std::map<Type, std::vector<std::vector<Program>>> allPrograms;
+    // Container that holds all programs
+    static ProgramContainer* programContainer;
 
     // Map from operations arg type to operations
-    std::map<std::vector<Type>, std::vector<Operation>> allOperations;
+    std::map<std::vector<Type>, std::vector<Operation*>> allOperations;
 
     std::vector<Value> inputs;
 };
+
+// static initialization
+template<typename ResT, typename ArgT>
+ProgramContainer* Synthesizer<ResT, ArgT>::programContainer = NULL;
 
 #include "Synthesizer.hpp"
 #endif

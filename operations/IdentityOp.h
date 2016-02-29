@@ -4,27 +4,49 @@
 #include <functional>
 #include <vector>
 #include <stdexcept>
+#include <string>
+#include <boost/any.hpp>
 
 #include "Operation.h"
 #include "../Type.h"
 #include "../values/Value.h"
-#include "../values/VInt.h"
 
-// TODO: Do I need an Int identity and Bool and Str identity? Or can I generalize this.
+
 class IdentityOp: public Operation {
 public:
-  IdentityOp() {
-  	f = [](std::vector<Value> args) {
-  		if (args.size() != 1) {
-  			throw std::invalid_argument("IdentityOp requires 1 arg but was given " + std::to_string(args.size()));
-  		} else {
-  			return args[0];
-  		}
-  	};
-  		
-  	retType = Type::TInt;
-  	argTypes.push_back(Type::TInt);
+  // TODO: Think about making this generic. One constructor that takes a Value (and maybe the Type too)
+  Value val;
+  IdentityOp(int i) {
+    val = Value(i);
+    retType = Type::TInt;
+    initFunction();
   }
+
+  IdentityOp(bool b) {
+    val = Value(b);
+    retType = Type::TBool;
+    initFunction();
+  }
+
+  IdentityOp(std::string s) {
+    val = Value(s);
+    retType = Type::TStr;
+    initFunction();
+  }
+
+  void initFunction() {
+  	f = [this](std::vector<Value> args) {
+  		return this->val;
+  	};
+  }
+
+    std::string toString(std::vector<std::tuple<Type, int, int>> args) {
+      if (args.size() != 0) {
+        return "BAD_IDNTY";
+      }
+
+      return val.toString();
+    }
 };
 
 #endif

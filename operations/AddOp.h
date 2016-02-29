@@ -3,12 +3,13 @@
 
 #include <functional>
 #include <vector>
+#include <string>
 #include <stdexcept>
+#include <boost/any.hpp>
 
 #include "Operation.h"
 #include "../Type.h"
 #include "../values/Value.h"
-#include "../values/VInt.h"
 
 class AddOp: public Operation {
 public:
@@ -17,15 +18,23 @@ public:
   		if (args.size() != 2) {
   			throw std::invalid_argument("AddOp requires 2 args but was given " + std::to_string(args.size()));
   		} else {
-  			VInt arg1 = *dynamic_cast<VInt*>(&(args[0]));
-  			VInt arg2 = *dynamic_cast<VInt*>(&(args[1]));
-  			return VInt( arg1.val + arg2.val);
+        int arg1 = boost::any_cast<int>(args[0]);
+        int arg2 = boost::any_cast<int>(args[1]);
+  			return Value(arg1 + arg2);
   		}
   	};
   		
   	retType = Type::TInt;
   	argTypes.push_back(Type::TInt);
   	argTypes.push_back(Type::TInt);
+  }
+
+  std::string toString(std::vector<std::tuple<Type, int, int>> args) {
+    if (args.size() != 2) {
+      return "BAD_ADD";
+    }
+
+    return "(" + programContainer->get(args[0]).toString() + " + " + programContainer->get(args[1]).toString() + ")";
   }
 };
 
