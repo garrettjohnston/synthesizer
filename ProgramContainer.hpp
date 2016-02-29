@@ -33,7 +33,7 @@ int ProgramContainer::size(Type returnType, int level) {
 }
 
 void ProgramContainer::push(Program p, int level) {
-    std::cout << "Program: " << p.printId() << " -- " << p.toString() << std::endl;
+    std::cout << "Program: " << p.printId() << " -- " << p.toString();
     auto search = programs.find(p.getType());
     if (search != programs.end()) {
         auto& programsOfThisType = search->second;
@@ -42,7 +42,7 @@ void ProgramContainer::push(Program p, int level) {
                 std::vector<Program> newVec;
                 newVec.push_back(p);
                 programsOfThisType.push_back(newVec);
-            } else throw std::invalid_argument("Trying to add program to level" + std::to_string(level));
+            } else throw std::invalid_argument("Trying to add program to level " + std::to_string(level));
         } else {
             programsOfThisType.at(level).push_back(p);
         }
@@ -54,7 +54,11 @@ void ProgramContainer::push(Program p, int level) {
         programs.insert({p.getType(), programsOfOneType});
     }
 
-//    std::cout << " evaluates to " << p.evaluate(inputs).toString();
+    // Currently doing this just to print the evaluated value. This makes run time much slower btw...
+    std::vector<Value> v;
+    v.push_back(Value(15));
+    v.push_back(Value(20));
+    std::cout << " evaluates to " << p.evaluate(v).toString() << std::endl;
 }
 
 void ProgramContainer::printAllPrograms() {

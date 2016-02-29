@@ -14,38 +14,50 @@
 
 class IdentityOp: public Operation {
 public:
-  // TODO: Think about making this generic. One constructor that takes a Value (and maybe the Type too)
-  Value val;
-  IdentityOp(int i) {
-    val = Value(i);
-    retType = Type::TInt;
-    initFunction();
-  }
+// TODO: Think about making this generic. One constructor that takes a Value (and maybe the Type too)
+    Value val;
+    IdentityOp(int i) {
+        val = Value(i);
+        retType = Type::TInt;
+        initFunction();
+    }
 
-  IdentityOp(bool b) {
-    val = Value(b);
-    retType = Type::TBool;
-    initFunction();
-  }
+    IdentityOp(bool b) {
+        val = Value(b);
+        retType = Type::TBool;
+        initFunction();
+    }
 
-  IdentityOp(std::string s) {
-    val = Value(s);
-    retType = Type::TStr;
-    initFunction();
-  }
+    IdentityOp(std::string s) {
+        val = Value(s);
+        retType = Type::TStr;
+        initFunction();
+    }
 
-  void initFunction() {
-  	f = [this](std::vector<Value> args) {
-  		return this->val;
-  	};
-  }
+    void initFunction() {
+        f = [this](std::vector<Value> args) {
+            return this->val;
+        };
+    }
 
     std::string toString(std::vector<std::tuple<Type, int, int>> args) {
-      if (args.size() != 0) {
-        return "BAD_IDNTY";
-      }
+        if (args.size() != 0) {
+            return "BAD_IDNTY";
+        }
 
-      return val.toString();
+        return val.toString();
+    }
+
+    bool isGoodArg(std::tuple<Type, int, int> p) {
+        return true;
+    }
+
+    bool isGoodArg(std::tuple<Type, int, int> p1, std::tuple<Type, int, int> p2) {
+        return true;
+    }
+
+    bool isRedundant(std::vector<std::tuple<Type, int, int>> p1, std::vector<std::tuple<Type, int, int>> p2) {
+        return false;
     }
 };
 
