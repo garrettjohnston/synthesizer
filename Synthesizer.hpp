@@ -6,6 +6,7 @@
 #include <iostream>
 #include <iterator>
 #include <tuple>
+#include <utility>
 #include <boost/any.hpp>
 
 #include "programs/Program.h"
@@ -22,8 +23,8 @@
 #include "values/Value.h"
 #include "Synthesizer.h"
 
-template<typename ResT, typename ArgT>
-Synthesizer<ResT, ArgT>::Synthesizer() {
+template<typename ResT, typename... ArgT>
+Synthesizer<ResT, ArgT...>::Synthesizer() {
     Synthesizer::programContainer = ProgramContainer::getInstance();
     Program::programContainer = ProgramContainer::getInstance();
     Operation::programContainer = ProgramContainer::getInstance();
@@ -50,8 +51,8 @@ Synthesizer<ResT, ArgT>::Synthesizer() {
 }
 
 // TODO: fully implement this
-template<typename ResT, typename ArgT>
-Program Synthesizer<ResT, ArgT>::findNewFeature() {
+template<typename ResT, typename... ArgT>
+Program Synthesizer<ResT, ArgT...>::findNewFeature() {
     // Check level 0 programs for viable features
     /*
     for (std::vector<Program>::iterator it = intPrograms.at(0); it != intPrograms.at(0).end(); it++) {
@@ -116,9 +117,38 @@ Program Synthesizer<ResT, ArgT>::findNewFeature() {
     return Program();
 }
 
+
+// Returns {true, Program_index} if the given Program resolves all conflicts.
+// Returns {false, undefined} if the given Program does NOT resolve all conflicts.
+// TODO: If it resolves ONE conflict set, should we return it? Otherwise we have to solve all conflict sets simultaneously
+// TODO: Not sure whether to assume that a boolean Program is passed in, or just check that case inside here.
+template<typename ResT, typename... ArgT>
+bool Synthesizer<ResT, ArgT...>::resolvesConflict(Program& p) {
+    if (p.operation->retType != Type::TBool)
+        return false;
+
+    for (auto conflictSet : conflictSets) {
+        bool truthValue = boost::any_cast<bool>(conflictSet.first[0]);
+        for (auto positiveConflict : conflictSet.first) {
+            bool b = boost::any_cast<bool>(p.evaluate(positiveConflict));
+            if (b != truthValue)
+                return false;
+        }
+
+        for (auto negativeConflict : conflictSet.second) {
+            bool b = boost::any_cast<bool>(p.evaluate(negativeConflict));
+            if (b == truthValue)
+                return false;
+        }
+    }
+
+    return true;
+};
+
+
 // Adds an operation to the allOperations map
-template<typename ResT, typename ArgT>
-void Synthesizer<ResT, ArgT>::pushOperation(Operation *op) {
+template<typename ResT, typename... ArgT>
+void Synthesizer<ResT, ArgT...>::pushOperation(Operation *op) {
     auto search = allOperations.find(op->argTypes);
     if (search != allOperations.end()) {
         auto &vec = search->second;
@@ -131,8 +161,8 @@ void Synthesizer<ResT, ArgT>::pushOperation(Operation *op) {
 }
 
 
-template<typename ResT, typename ArgT>
-void Synthesizer<ResT, ArgT>::printAllOperations() {
+template<typename ResT, typename... ArgT>
+void Synthesizer<ResT, ArgT...>::printAllOperations() {
     std::cout << "Operations:" << std::endl;
     for (auto it = allOperations.begin(); it != allOperations.end(); it++) {
         std::cout << it->second.size();
