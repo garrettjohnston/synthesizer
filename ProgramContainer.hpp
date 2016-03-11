@@ -2,9 +2,13 @@
 #define __PIE_PROGRAM_CONTAINER_HPP__
 
 #include <tuple>
+#include <vector>
 #include <iostream>
+#include <boost/any.hpp>
+
 #include "ProgramContainer.h"
 #include "programs/Program.h"
+#include "utils/util.h"
 
 ProgramContainer* ProgramContainer::getInstance() {
     if (!instance) {
@@ -55,10 +59,11 @@ void ProgramContainer::push(Program p, int level) {
     }
 
     // Currently doing this just to print the evaluated value. This makes run time much slower btw...
-    std::vector<Value> v;
-    v.push_back(Value(15));
-    v.push_back(Value(20));
-    std::cout << " evaluates to " << p.evaluate(v).toString() << std::endl;
+    std::vector<boost::any> v;
+    v.push_back(boost::any(15));
+    v.push_back(boost::any(20));
+    v.push_back(boost::any(true));
+    std::cout << " evaluates to " << utils::toString(p.evaluate(v)) << std::endl;
 }
 
 void ProgramContainer::printAllPrograms() {

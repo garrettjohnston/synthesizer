@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <tuple>
 #include <utility>
 
 #include "programs/Program.h"
@@ -14,29 +15,23 @@
 template<typename ResT, typename... ArgT>
 class Synthesizer {
 public:
-    // TODO pass in std::map<ArgT, ResT>& functionMap
     Synthesizer();
-    Program findNewFeature();
-    void pushOperation(Operation* op);
+
+    // Function that does all the meat of the work, searching over all Programs until one is found
+    // that satisfies the input/outputs pairs given in the samples vector.
+    // samples -- a vector of pairs of input/outputs, casted as boost::any.
+    Program findFittingProgram(std::vector<std::pair<std::vector<boost::any>, boost::any>> samples);
+
     void printAllOperations();
-
 private:
-    bool resolvesConflict(Program& p);
-
     // Container that holds all programs
     static ProgramContainer* programContainer;
 
-    // First vector holds all separate conflict sets.
-    // Tuple (conflict set) is a pair:
-    //  - First is vector of positive conflict inputs
-    //  - Second is vector of negative conflict inputs
-    // TODO: Do I want to use a set or unordered_set here for efficiency? idk
-    std::vector<std::pair<std::vector<std::vector<Value>>, std::vector<std::vector<Value>>>> conflictSets;
+    // Adds an operation to the Synthesizer's list of operations to use during search for a Program
+    void pushOperation(Operation *op);
 
     // Map from operations arg type to operations
     std::map<std::vector<Type>, std::vector<Operation*>> allOperations;
-
-    std::vector<Value> inputs;
 };
 
 // static initialization

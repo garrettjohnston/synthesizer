@@ -9,33 +9,33 @@
 
 #include "Operation.h"
 #include "../Type.h"
-#include "../values/Value.h"
+#include "../utils/util.h"
 
 
 class IdentityOp: public Operation {
 public:
-// TODO: Think about making this generic. One constructor that takes a Value (and maybe the Type too)
-    Value val;
+// TODO: Think about making this generic. One constructor that takes a boost::any (and maybe the Type too)
+    boost::any val;
     IdentityOp(int i) {
-        val = Value(i);
+        val = boost::any(i);
         retType = Type::TInt;
         initFunction();
     }
 
     IdentityOp(bool b) {
-        val = Value(b);
+        val = boost::any(b);
         retType = Type::TBool;
         initFunction();
     }
 
     IdentityOp(std::string s) {
-        val = Value(s);
+        val = boost::any(s);
         retType = Type::TStr;
         initFunction();
     }
 
     void initFunction() {
-        f = [this](std::vector<Value> args) {
+        f = [this](std::vector<boost::any> args) {
             return this->val;
         };
     }
@@ -45,7 +45,7 @@ public:
             return "BAD_IDNTY";
         }
 
-        return val.toString();
+        return utils::toString(val);
     }
 
     bool isGoodArg(std::tuple<Type, int, int> p) {

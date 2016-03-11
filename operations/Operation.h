@@ -6,15 +6,15 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <boost/any.hpp>
 
 #include "../Type.h"
-#include "../values/Value.h"
 
 class ProgramContainer;
 
 class Operation {
 public:
-    std::function<Value(std::vector<Value>)> f;
+    std::function<boost::any(std::vector<boost::any>)> f;
 	std::vector<Type> argTypes;
 	Type retType;
     bool isSymmetric;

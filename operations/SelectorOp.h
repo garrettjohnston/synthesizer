@@ -8,21 +8,19 @@
 
 #include "Operation.h"
 #include "../Type.h"
-#include "../values/Value.h"
 
 class SelectorOp : public Operation {
 public:
     int index;
 
-    SelectorOp(int i, Type type) { // TODO: Maybe don't pass in Type explicitly, but figure it out from args
-        // Function takes as input, the vector of input values
+    SelectorOp(int i, Type type) {
+        // Function takes as input, the vector of input boost::anys
         index = i;
-        f = [this](std::vector<Value> args) {
+        f = [this](std::vector<boost::any> args) {
             return args.at(this->index);
         };
 
         retType = type;
-        argTypes.push_back(Type::TStr); // argTypes should never really be called for this op
     }
 
     std::string toString(std::vector<std::tuple<Type, int, int>> args) {

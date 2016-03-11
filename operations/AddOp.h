@@ -11,18 +11,17 @@
 #include "Operation.h"
 #include "IdentityOp.h"
 #include "../Type.h"
-#include "../values/Value.h"
 
 class AddOp: public Operation {
 public:
 	AddOp() {
-		f = [](std::vector<Value> args) {
+		f = [](std::vector<boost::any> args) {
 			if (args.size() != 2) {
 				throw std::invalid_argument("AddOp requires 2 args but was given " + std::to_string(args.size()));
 			} else {
 			int arg1 = boost::any_cast<int>(args[0]);
 			int arg2 = boost::any_cast<int>(args[1]);
-				return Value(arg1 + arg2);
+				return boost::any(arg1 + arg2);
 			}
 		};
   		
@@ -39,6 +38,7 @@ public:
         return "(" + programContainer->get(args[0]).toString() + " + " + programContainer->get(args[1]).toString() + ")";
 	}
 
+    // Returns false if a 0 Program is found. Else true.
 	bool isGoodArg(std::tuple<Type, int, int> p) {
         Program& program = programContainer->get(p);
         IdentityOp* b = dynamic_cast<IdentityOp*>(program.operation);

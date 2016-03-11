@@ -9,18 +9,17 @@
 
 #include "Operation.h"
 #include "../Type.h"
-#include "../values/Value.h"
 
 class LessThanOp : public Operation {
 public:
     LessThanOp() {
-        f = [](std::vector<Value> args) {
+        f = [](std::vector<boost::any> args) {
             if (args.size() != 2) {
                 throw std::invalid_argument("LessThanOp requires 2 args but was given " + std::to_string(args.size()));
             } else {
                 int arg1 = boost::any_cast<int>(args[0]);
                 int arg2 = boost::any_cast<int>(args[1]);
-                return Value(arg1 < arg2);
+                return boost::any(arg1 < arg2);
             }
         };
         retType = Type::TBool;

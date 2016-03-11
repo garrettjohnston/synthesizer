@@ -8,30 +8,44 @@
 
 #include "../operations/Operation.h"
 #include "../Type.h"
-#include "../values/Value.h"
 
 class ProgramContainer;
 
 class Program {
 public:
+    // Constructors
     Program();
     Program(Operation * op);
     Program(Operation* op, std::vector<std::tuple<Type, int, int>> ch);
-    Value evaluate(std::vector<Value>& input);
-    bool resolvesConflict();
+
+    // Evaluates the Program with the given input
+    boost::any evaluate(std::vector<boost::any>& input);
+
+    // Returns true if the given input/output samples are satisfied by this Program. Else false.
+    bool satisfiesSamples(std::vector<std::pair<std::vector<boost::any>, boost::any>> samples);
+
+    //
+    Type getType();
+
+    // Helpful debugging print statements
     std::string printableType();
     std::string toString();
     std::string printId();
-    Type getType();
 
-    static int count;
+    // The return Type of this program (defined in Type.h)
     Type type;
-    // Store children as a tuple of <Type, level, index> to retrieve it from programs vector
+
+    // Store children as a tuple of (Type, level, index) to retrieve it from the programContainer
     std::vector<std::tuple<Type, int, int>> children;
+
+    // Pointer to operation (held in Synthesizer)
     Operation* operation;
+
+    // A number that uniquely identifies this Program. Taken from "count" when constructed.
     int id;
 
     static ProgramContainer* programContainer;
+    static int count;
 };
 
 // static initialization
