@@ -19,7 +19,7 @@ public:
     Program(Operation* op, std::vector<std::tuple<Type, int, int>> ch);
 
     // Evaluates the Program with the given input
-    boost::any evaluate(std::vector<boost::any>& input);
+    boost::any evaluate(const std::vector<boost::any>& input);
 
     // Returns true if the given input/output samples are satisfied by this Program. Else false.
     bool satisfiesSamples(std::vector<std::pair<std::vector<boost::any>, boost::any>> samples);

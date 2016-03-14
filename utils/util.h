@@ -2,6 +2,7 @@
 #define __PIE_UTILS_H__
 
 #include <boost/any.hpp>
+#include "../userDefinedTypes/List.hpp"
 
 namespace utils {
     std::string toString(boost::any val) {
@@ -16,6 +17,10 @@ namespace utils {
         try {
             std::string s = boost::any_cast<std::string>(val);
             return s;
+        } catch (boost::bad_any_cast e) { }
+        try {
+            List l = boost::any_cast<List>(val);
+            return l.toString();
         } catch (boost::bad_any_cast e) {
             return "unknown type";
         }

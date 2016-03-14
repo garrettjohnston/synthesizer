@@ -22,6 +22,8 @@
 #include "ProgramContainer.h"
 #include "Type.h"
 #include "Synthesizer.h"
+#include "userDefinedTypes/List.hpp"
+#include "operations/ListAddItemOp.h"
 
 template<typename ResT, typename... ArgT>
 Synthesizer<ResT, ArgT...>::Synthesizer() {
@@ -36,6 +38,7 @@ Synthesizer<ResT, ArgT...>::Synthesizer() {
     programContainer->push(Program(new IdentityOp(true)), 0);
     programContainer->push(Program(new IdentityOp(false)), 0);
     programContainer->push(Program(new IdentityOp(std::string(""))), 0);
+    programContainer->push(Program(new IdentityOp(List())), 0);
 
 
     pushOperation(new AddOp());
@@ -43,6 +46,7 @@ Synthesizer<ResT, ArgT...>::Synthesizer() {
     pushOperation(new GreaterThanOp());
 //    pushOperation(new LessThanOp());
     pushOperation(new IntEqualsOp());
+    pushOperation(new ListAddItemOp());
 
     printAllOperations();
 }
@@ -81,72 +85,75 @@ Program Synthesizer<ResT, ArgT...>::findFittingProgram(std::vector<std::pair<std
             for (auto op : operations) {
                 bool opIsRightReturnType = (returnType == op->retType);
 
-                std::cout << std::endl << "New Operation: " << op->printType() << std::endl;
+                std::cout << std::endl << "New Operation: " << op->name() << op->printType() << std::endl;
 
                 // Create vector of "children" to hold the child Programs of the new Program we are creating
                 std::vector<std::tuple<Type, int, int>> children;
 
-                // The first child must only consider programs from current level - 1
-                int child1NumPrograms = programContainer->size(inputTypes[0], level - 1);
-                for (int index = 0; index < child1NumPrograms; index++) {
-                    // Create the tuple to represent the child 1 Program.
-                    std::tuple<Type, int, int> child1{inputTypes[0], level - 1, index};
+                // The first child must only consider programs from current level - 1 (if the operation is composable)
+                int startLevel = op->isComposable ? level - 1 : 0;
+                for ( ; startLevel < level; startLevel++) {
+                    int child1NumPrograms = programContainer->size(inputTypes[0], startLevel);
+                    for (int index = 0; index < child1NumPrograms; index++) {
+                        // Create the tuple to represent the child 1 Program.
+                        std::tuple<Type, int, int> child1{inputTypes[0], startLevel, index};
 
-                    // Check if this program is sensible for the given operation
-                    if (op->isGoodArg(child1)) {
-                        children.push_back(child1);
-                    } else {
-                        continue;
-                    }
-
-                    // Assume only 1 or 2 inputs at this time. Generalize later if possible
-                    if (inputTypes.size() == 1) {
-                        Program newProgram(op, children);
-
-                        // Check if this program satisfies all sample input/outputs.
-                        if (opIsRightReturnType && newProgram.satisfiesSamples(samples)) {
-                            return newProgram;
+                        // Check if this program is sensible for the given operation
+                        if (op->isGoodArg(child1)) {
+                            children.push_back(child1);
+                        } else {
+                            continue;
                         }
-                        programContainer->push(newProgram, level);
-                    }
 
-                    else if (inputTypes.size() == 2) {
-                        // Put dummy data in the second spot to overwrite in loop
-                        std::tuple<Type, int, int> dummy{Type::TInt, -1, -1};
-                        children.push_back(dummy);
+                        // Assume only 1 or 2 inputs at this time. Generalize later if possible
+                        if (inputTypes.size() == 1) {
+                            Program newProgram(op, children);
 
-                        // The second child can be a Program from any previous level
-                        for (int anyLevel = 0; anyLevel < level; anyLevel++) {
-                            int child2NumPrograms = programContainer->size(inputTypes[1], anyLevel);
-
-                            // If we have a symmetric operation, skip any instances of repeat Programs
-                            // that are simply on swapped sides of the operator (e.g. A == B, and B == A)
-                            int index2 = 0;
-                            if (op->isSymmetric && anyLevel == level - 1) {
-                                index2 = index;
+                            // Check if this program satisfies all sample input/outputs.
+                            if (opIsRightReturnType && newProgram.satisfiesSamples(samples)) {
+                                return newProgram;
                             }
-                            for (; index2 < child2NumPrograms; index2++) {
-                                // Create the tuple to represent the child 2 Program
-                                std::tuple<Type, int, int> child2{inputTypes[1], anyLevel, index2};
+                            programContainer->push(newProgram, level);
+                        }
 
-                                // Check that both args are good for this operator
-                                if (op->isGoodArg(child1, child2)) {
-                                    children.at(1) = child2;
+                        else if (inputTypes.size() == 2) {
+                            // Put dummy data in the second spot to overwrite in loop
+                            std::tuple<Type, int, int> dummy{Type::TInt, -1, -1};
+                            children.push_back(dummy);
 
-                                    Program newProgram(op, children);
-                                    if (opIsRightReturnType && newProgram.satisfiesSamples(samples)) {
-                                        return newProgram;
+                            // The second child can be a Program from any previous level
+                            for (int anyLevel = 0; anyLevel < level; anyLevel++) {
+                                int child2NumPrograms = programContainer->size(inputTypes[1], anyLevel);
+
+                                // If we have a symmetric operation, skip any instances of repeat Programs
+                                // that are simply on swapped sides of the operator (e.g. A == B, and B == A)
+                                int index2 = 0;
+                                if (op->isSymmetric && anyLevel == startLevel) {
+                                    index2 = index;
+                                }
+                                for (; index2 < child2NumPrograms; index2++) {
+                                    // Create the tuple to represent the child 2 Program
+                                    std::tuple<Type, int, int> child2{inputTypes[1], anyLevel, index2};
+
+                                    // Check that both args are good for this operator
+                                    if (op->isGoodArg(child1, child2)) {
+                                        children.at(1) = child2;
+
+                                        Program newProgram(op, children);
+                                        if (opIsRightReturnType && newProgram.satisfiesSamples(samples)) {
+                                            return newProgram;
+                                        }
+                                        programContainer->push(newProgram, level);
                                     }
-                                    programContainer->push(newProgram, level);
                                 }
                             }
                         }
-                    }
 
-                    else { //TODO: Can probably handle this more gracefully
-                        throw std::invalid_argument("Operators with > 2 args not currently accepted.");
+                        else { //TODO: Can probably handle this more gracefully
+                            throw std::invalid_argument("Operators with > 2 args not currently accepted.");
+                        }
+                        children.clear();
                     }
-                    children.clear();
                 }
             }
         }

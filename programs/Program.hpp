@@ -21,7 +21,7 @@ Program::Program(Operation* op, std::vector<std::tuple<Type, int, int>> ch): Pro
 }
 
 // Evaluates this program with the given input values, first recursively calling it's children to evaluate themselves.
-boost::any Program::evaluate(std::vector<boost::any>& input) {
+boost::any Program::evaluate(const std::vector<boost::any>& input) {
     // Check if this program is at level 0
     if (children.size() == 0) {
         return operation->f(input);
@@ -41,7 +41,7 @@ Type Program::getType() { return type; }
 // Returns true if the program satisfies all samples. Assumes that samples output type == program output type.
 bool Program::satisfiesSamples(std::vector<std::pair<std::vector<boost::any>, boost::any>> samples) {
     for (auto pair : samples) {
-        std::vector<boost::any> input = pair.first;
+        std::vector<boost::any>& input = pair.first;
         boost::any output = pair.second;
 
         if ( !isEqual(evaluate(input), output, type))

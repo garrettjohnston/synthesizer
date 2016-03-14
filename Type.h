@@ -3,12 +3,13 @@
 
 #include <stdexcept>
 #include <boost/any.hpp>
+#include "userDefinedTypes/List.hpp"
 
 // TODO: Ideally, put all these special functions in some "Type" namespace without screweing everything else up
 
-enum class Type { TInt, TBool, TStr };
+enum class Type { TInt, TBool, TStr, TList };
 
-static std::string TypeNames[] { "Int", "Bool", "Str" };
+static std::string TypeNames[] { "Int", "Bool", "Str", "List" };
 
 // Annoying and ugly function, but it is necessary to get around c++ template/type issues.
 Type getTypeOfAny(boost::any val) {
@@ -25,6 +26,11 @@ Type getTypeOfAny(boost::any val) {
     try {
         std::string s = boost::any_cast<std::string>(val);
         return Type::TStr;
+    } catch (boost::bad_any_cast e) { }
+
+    try {
+        List l = boost::any_cast<List>(val);
+        return Type::TList;
     } catch (boost::bad_any_cast e) {
         throw std::invalid_argument("boost::any value did not match any types");
     }
@@ -43,6 +49,10 @@ bool isEqual(boost::any func_out, boost::any exp_out, Type type) {
             std::string str1 = boost::any_cast<std::string>(func_out);
             std::string str2 = boost::any_cast<std::string>(exp_out);
             return str1.compare(str2) == 0;
+        }
+
+        case Type::TList: {
+            return boost::any_cast<List>(func_out) == boost::any_cast<List>(exp_out);
         }
 //        default:
 //            throw std::invalid_argument("Type could not be matched");

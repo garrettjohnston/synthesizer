@@ -26,6 +26,7 @@ public:
         argTypes.push_back(Type::TInt);
         argTypes.push_back(Type::TInt);
         isSymmetric = false;
+        isComposable = true;
     }
 
     std::string toString(std::vector<std::tuple<Type, int, int>> args) {
@@ -33,6 +34,10 @@ public:
             return "BAD_LT";
         }
         return "(" + programContainer->get(args[0]).toString() + " < " + programContainer->get(args[1]).toString() + ")";
+    }
+
+    std::string name() {
+        return "LessThanOp";
     }
 
     bool isGoodArg(std::tuple<Type, int, int> p) {

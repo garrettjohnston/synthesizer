@@ -29,6 +29,7 @@ public:
 		argTypes.push_back(Type::TInt);
 		argTypes.push_back(Type::TInt);
         isSymmetric = true;
+        isComposable = true;
 	}
 
 	std::string toString(std::vector<std::tuple<Type, int, int>> args) {
@@ -37,6 +38,10 @@ public:
 		}
         return "(" + programContainer->get(args[0]).toString() + " + " + programContainer->get(args[1]).toString() + ")";
 	}
+
+    std::string name() {
+        return "AddOp";
+    }
 
     // Returns false if a 0 Program is found. Else true.
 	bool isGoodArg(std::tuple<Type, int, int> p) {
