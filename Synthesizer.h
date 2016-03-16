@@ -12,7 +12,6 @@
 #include "operations/Operation.h"
 #include "Type.h"
 
-template<typename ResT, typename... ArgT>
 class Synthesizer {
 public:
     Synthesizer();
@@ -35,8 +34,7 @@ private:
 };
 
 // static initialization
-template<typename ResT, typename... ArgT>
-ProgramContainer* Synthesizer<ResT, ArgT...>::programContainer = NULL;
+ProgramContainer* Synthesizer::programContainer = NULL;
 
 #include "Synthesizer.hpp"
 #endif

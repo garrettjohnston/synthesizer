@@ -6,37 +6,37 @@
 #include "utils/util.h"
 
 int main (int argc, char *argv[]) {
-    Synthesizer<bool, int> s;
+    Synthesizer s;
 
     // first sample
     // input
 	std::vector<boost::any> v;
     v.push_back(boost::any(3));
-    v.push_back(boost::any(14));
+    v.push_back(boost::any(4));
     // output
     List l1;
-    l1.addToList(17);
-    l1.addToList(42);
+    l1.addToList(7);
+    l1.addToList(12);
 
     // second sample
     // input
     std::vector<boost::any> v2;
-    v2.push_back(boost::any(3));
-    v2.push_back(boost::any(15));
+    v2.push_back(boost::any(8));
+    v2.push_back(boost::any(2));
     // output
     List l2;
-    l2.addToList(18);
-    l2.addToList(45);
+    l2.addToList(10);
+    l2.addToList(16);
 
     // third sample
     // input
     std::vector<boost::any> v3;
+    v3.push_back(boost::any(-5));
     v3.push_back(boost::any(3));
-    v3.push_back(boost::any(25));
     // output
     List l3;
-    l3.addToList(28);
-    l3.addToList(75);
+    l3.addToList(-2);
+    l3.addToList(-15);
 
 	std::vector<std::pair<std::vector<boost::any>, boost::any>> samples;
 	samples.push_back({v, boost::any(l1)});

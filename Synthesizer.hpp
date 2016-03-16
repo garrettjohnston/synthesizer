@@ -25,8 +25,7 @@
 #include "userDefinedTypes/List.hpp"
 #include "operations/ListAddItemOp.h"
 
-template<typename ResT, typename... ArgT>
-Synthesizer<ResT, ArgT...>::Synthesizer() {
+Synthesizer::Synthesizer() {
     Synthesizer::programContainer = ProgramContainer::getInstance();
     Program::programContainer = ProgramContainer::getInstance();
     Operation::programContainer = ProgramContainer::getInstance();
@@ -52,8 +51,7 @@ Synthesizer<ResT, ArgT...>::Synthesizer() {
 }
 
 
-template<typename ResT, typename... ArgT>
-Program Synthesizer<ResT, ArgT...>::findFittingProgram(std::vector<std::pair<std::vector<boost::any>, boost::any>> samples) {
+Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost::any>, boost::any>> samples) {
 
     // Add input values in to level 0 Programs.
     // NOTE: Could not find a good way to leverage C++'s built in type system and templates to do this.
@@ -165,8 +163,7 @@ Program Synthesizer<ResT, ArgT...>::findFittingProgram(std::vector<std::pair<std
 
 
 // Adds an operation to the allOperations map
-template<typename ResT, typename... ArgT>
-void Synthesizer<ResT, ArgT...>::pushOperation(Operation *op) {
+void Synthesizer::pushOperation(Operation *op) {
     auto search = allOperations.find(op->argTypes);
     if (search != allOperations.end()) {
         auto &vec = search->second;
@@ -179,8 +176,7 @@ void Synthesizer<ResT, ArgT...>::pushOperation(Operation *op) {
 }
 
 
-template<typename ResT, typename... ArgT>
-void Synthesizer<ResT, ArgT...>::printAllOperations() {
+void Synthesizer::printAllOperations() {
     std::cout << "Operations:" << std::endl;
     for (auto it = allOperations.begin(); it != allOperations.end(); it++) {
         std::cout << it->second.size();
