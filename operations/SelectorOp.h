@@ -31,6 +31,10 @@ public:
         return "idx_" + std::to_string(index);
     }
 
+    std::string name() {
+        return "SelectorOp";
+    }
+
     bool isGoodArg(std::tuple<Type, int, int> p) {
         return true;
     }

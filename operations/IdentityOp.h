@@ -34,6 +34,12 @@ public:
         initFunction();
     }
 
+    IdentityOp(List l) {
+        val = boost::any(l);
+        retType = Type::TList;
+        initFunction();
+    }
+
     void initFunction() {
         f = [this](std::vector<boost::any> args) {
             return this->val;
@@ -46,6 +52,10 @@ public:
         }
 
         return utils::toString(val);
+    }
+
+    std::string name() {
+        return "IdentityOp";
     }
 
     bool isGoodArg(std::tuple<Type, int, int> p) {
