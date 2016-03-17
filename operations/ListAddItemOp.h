@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include "Operation.h"
-#include "IdentityOp.h"
+#include "primitive/IdentityOp.h"
 #include "../Type.h"
 #include "../userDefinedTypes/List.hpp"
 
@@ -33,7 +33,6 @@ public:
         argTypes.push_back(Type::TList);
         argTypes.push_back(Type::TInt);
         isSymmetric = false;
-        isComposable = false;
     }
 
     std::string toString(std::vector<std::tuple<Type, int, int>> args) {

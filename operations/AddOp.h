@@ -9,7 +9,7 @@
 #include <typeinfo>
 
 #include "Operation.h"
-#include "IdentityOp.h"
+#include "primitive/IdentityOp.h"
 #include "../Type.h"
 
 class AddOp: public Operation {
@@ -29,7 +29,6 @@ public:
 		argTypes.push_back(Type::TInt);
 		argTypes.push_back(Type::TInt);
         isSymmetric = true;
-        isComposable = true;
 	}
 
 	std::string toString(std::vector<std::tuple<Type, int, int>> args) {

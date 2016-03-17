@@ -44,6 +44,9 @@ public:
     // A number that uniquely identifies this Program. Taken from "count" when constructed.
     int id;
 
+    // Value is true if this program or any of its children contains an input value (i.e. SelectorOp)
+    bool containsInputVal = false;
+
     static ProgramContainer* programContainer;
     static int count;
 };
