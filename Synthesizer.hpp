@@ -16,8 +16,8 @@
 #include "operations/GreaterThanOp.h"
 #include "operations/LessThanOp.h"
 #include "operations/IntEqualsOp.h"
-#include "operations/IdentityOp.h"
-#include "operations/SelectorOp.h"
+#include "operations/primitive/IdentityOp.h"
+#include "operations/primitive/SelectorOp.h"
 #include "operations/Operation.h"
 #include "ProgramContainer.h"
 #include "Type.h"
@@ -40,12 +40,13 @@ Synthesizer::Synthesizer() {
     programContainer->push(Program(new IdentityOp(List())), 0);
 
 
+    // Put all operations here
     pushOperation(new AddOp());
     pushOperation(new MultiplyOp());
     pushOperation(new GreaterThanOp());
 //    pushOperation(new LessThanOp());
     pushOperation(new IntEqualsOp());
-//    pushOperation(new ListAddItemOp());
+    pushOperation(new ListAddItemOp());
 
     printAllOperations();
 }
@@ -64,7 +65,9 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
     // NOTE: Could not find a good way to leverage C++'s built in type system and templates to do this.
     int index = 0;
     for (auto inputVal : samples[0].first) {
-        programContainer->push(Program(new SelectorOp(index, getTypeOfAny(inputVal))), 0);
+        Program p(Program(new SelectorOp(index, getTypeOfAny(inputVal))));
+        p.containsInputVal = true;
+        programContainer->push(p, 0);
         index++;
     }
 
@@ -80,7 +83,7 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
     int level = 1;
 
     // Could add a time limit here with the while loop
-    while (level < 3) {
+    while (level < 4) {
         std::cout << std::endl << "LEVEL " << level << std::endl;
         // For each set of operations separated by arg types
         for (auto it : allOperations) {
@@ -109,7 +112,7 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
                 for (int i = 0; i < numArgs; i++) {
                     numLevels.push_back(level - 1);
                 }
-                printVector("numLevels", numLevels);
+//                printVector("numLevels", numLevels);
 
                 // Represents the current levels we are pulling programs from, for each argument in the operation
                 std::vector<int> argLevels;
@@ -125,15 +128,17 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
                 while (argLevels != std::vector<int>()) {
                     // Ensure at least ONE level is from the max: level - 1
                     while (!atLeastOneMax(argLevels, numLevels)) {
-                        argLevels = getNextLevels(isSymmetric, argLevels, numLevels);
+                        argLevels = getNextCombo(isSymmetric, argLevels, numLevels);
                     }
-                    printVector("argLevels", argLevels);
+
+                    bool allLevelsSame = std::adjacent_find(argLevels.begin(), argLevels.end(), std::not_equal_to<int>() ) == argLevels.end();
+//                    printVector("argLevels", argLevels);
                     // Represents sizes of the current level each arg is pulling from.
                     std::vector<int> levelSizes;
                     for (int argNum = 0; argNum < numArgs; argNum++) {
                         levelSizes.push_back( programContainer->size(inputTypes[argNum], argLevels[argNum]) - 1);
                     }
-                    printVector("levelSizes", levelSizes);
+//                    printVector("levelSizes", levelSizes);
 
                     // Represents, for each argument in the operation, the index of the program we are grabbing.
                     std::vector<int> programIndices;
@@ -146,7 +151,7 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
 
                     // Loop through all programs at the given level combination
                     while (programIndices != std::vector<int>()) {
-                        printVector("programIndices", programIndices);
+//                        printVector("programIndices", programIndices);
 
                         for (int argNum = 0; argNum < numArgs; argNum++) {
                             std::tuple<Type, int, int> child {inputTypes[argNum], argLevels[argNum], programIndices[argNum]};
@@ -162,10 +167,10 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
                             }
                             programContainer->push(newProgram, level);
                         }
-                        programIndices = getNextPrograms(isSymmetric, programIndices, levelSizes, argLevels);
+                        programIndices = getNextCombo(isSymmetric && allLevelsSame, programIndices, levelSizes);
                     }
 
-                    argLevels = getNextLevels(isSymmetric, argLevels, numLevels);
+                    argLevels = getNextCombo(isSymmetric, argLevels, numLevels);
                 }
             }
         }
@@ -195,7 +200,7 @@ bool Synthesizer::atLeastOneMax(std::vector<int> current, std::vector<int> max) 
 // The isSymmetric part is confusing, but basically forces the next combination to not have been a permutation
 // of any previously returned combination.
 // EX: getNextCombo(true, {1,4}, {2,4}) --> {2,2},because the next ones {2,0}, {2,1} have already come up as {0,2}, {1,2}.
-std::vector<int> Synthesizer::getNextLevels(bool isSymmetric, std::vector<int> current, std::vector<int> max) {
+std::vector<int> Synthesizer::getNextCombo(bool isSymmetric, std::vector<int> current, std::vector<int> max) {
     if (current.size() != max.size()) {
         throw std::invalid_argument("Vector size mismatch! current.size() != max.size()");
     }
@@ -213,35 +218,6 @@ std::vector<int> Synthesizer::getNextLevels(bool isSymmetric, std::vector<int> c
             return current;
         }
         // If we have reached the max digit at position i, try the one to the left.
-        else {
-            current[i] = 0;
-            i--;
-        }
-    }
-    // Return empty vector when there are no more valid combinations
-    return std::vector<int>();
-}
-
-
-std::vector<int> Synthesizer::getNextPrograms(bool isSymmetric, std::vector<int> current, std::vector<int> max, std::vector<int> currentLevels) {
-    if (current.size() != max.size()) {
-        throw std::invalid_argument("Vector size mismatch! current.size() != max.size()");
-    }
-
-    int i = current.size() - 1;
-    while (i >= 0) {
-        // General case, if we can increase a digit, do it.
-        if (current[i] != max[i]) {
-            current[i]++;
-            // If symmetric, set all numbers to RIGHT equal to this number. This avoids repeating permutations
-            // For this to work with programs, all must be on same level
-            if (isSymmetric && std::adjacent_find(currentLevels.begin(), currentLevels.end(), std::not_equal_to<int>() ) == currentLevels.end() )
-                for (int j = i+1; j < current.size(); j++) {
-                    current[j] = current[i];
-                }
-            return current;
-        }
-            // If we have reached the max digit at position i, try the one to the left.
         else {
             current[i] = 0;
             i--;
