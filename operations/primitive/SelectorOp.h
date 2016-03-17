@@ -6,8 +6,8 @@
 #include <stdexcept>
 #include <string>
 
-#include "Operation.h"
-#include "../Type.h"
+#include "../Operation.h"
+#include "../../Type.h"
 
 class SelectorOp : public Operation {
 public:

@@ -26,7 +26,6 @@ public:
         argTypes.push_back(Type::TInt);
         argTypes.push_back(Type::TInt);
         isSymmetric = false;
-        isComposable = true;
     }
 
     std::string toString(std::vector<std::tuple<Type, int, int>> args) {

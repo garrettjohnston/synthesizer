@@ -33,9 +33,8 @@ private:
     // Map from operations arg type to operations
     std::map<std::vector<Type>, std::vector<Operation *>> allOperations;
 
-    std::vector<int> getNextLevels(bool isSymmetric, std::vector<int> current, std::vector<int> max);
+    std::vector<int> getNextCombo(bool isSymmetric, std::vector<int> current, std::vector<int> max);
     bool atLeastOneMax(std::vector<int> current, std::vector<int> max);
-    std::vector<int> getNextPrograms(bool isSymmetric, std::vector<int> current, std::vector<int> max, std::vector<int> currentLevels);
 
 
 };

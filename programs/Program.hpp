@@ -18,6 +18,13 @@ Program::Program(Operation* op) : Program(){
 
 Program::Program(Operation* op, std::vector<std::tuple<Type, int, int>> ch): Program(op) {
     children = ch;
+    for (auto child : children) {
+        if (programContainer->get(child).containsInputVal) {
+            containsInputVal = true;
+            break;
+        }
+    }
+
 }
 
 // Evaluates this program with the given input values, first recursively calling it's children to evaluate themselves.

@@ -5,7 +5,7 @@
 #include <boost/any.hpp>
 #include "userDefinedTypes/List.hpp"
 
-// TODO: Ideally, put all these special functions in some "Type" namespace without screweing everything else up
+// TODO: Ideally, put all these special functions in some "Type" namespace without screwing everything else up
 
 enum class Type { TInt, TBool, TStr, TList };
 

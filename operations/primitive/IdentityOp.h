@@ -7,9 +7,9 @@
 #include <string>
 #include <boost/any.hpp>
 
-#include "Operation.h"
-#include "../Type.h"
-#include "../utils/util.h"
+#include "../Operation.h"
+#include "../../Type.h"
+#include "../../utils/util.h"
 
 
 class IdentityOp: public Operation {

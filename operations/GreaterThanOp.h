@@ -27,7 +27,6 @@ public:
         argTypes.push_back(Type::TInt);
         argTypes.push_back(Type::TInt);
         isSymmetric = false;
-        isComposable = true;
     }
 
     std::string toString(std::vector<std::tuple<Type, int, int>> args) {
@@ -49,7 +48,8 @@ public:
         Program& program1 = programContainer->get(programs[0]);
         Program& program2 = programContainer->get(programs[1]);
         // Don't allow the same program on both sides of > sign
-        if (program1.id == program2.id) {
+        // Also don't allow > with only int values, there must be some input value.
+        if (program1.id == program2.id || (!program1.containsInputVal && !program2.containsInputVal)) {
             return false;
         }
         // Check for redundancy in child Programs
