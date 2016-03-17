@@ -41,15 +41,15 @@ public:
         return "GreaterThanOp";
     }
 
-    bool isGoodArg(std::tuple<Type, int, int> p) {
-        return true;
-    }
+    bool areGoodArgs(std::vector<std::tuple<Type, int, int>> programs) {
+        if (programs.size() != 2) {
+            return false;
+        }
 
-    bool isGoodArg(std::tuple<Type, int, int> p1, std::tuple<Type, int, int> p2) {
-        Program& program1 = programContainer->get(p1);
-        Program& program2 = programContainer->get(p2);
+        Program& program1 = programContainer->get(programs[0]);
+        Program& program2 = programContainer->get(programs[1]);
         // Don't allow the same program on both sides of > sign
-        if (p1 == p2) {
+        if (program1.id == program2.id) {
             return false;
         }
         // Check for redundancy in child Programs

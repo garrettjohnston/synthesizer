@@ -47,11 +47,7 @@ public:
         return "ListAddItemOp";
     }
 
-    bool isGoodArg(std::tuple<Type, int, int> p) {
-        return true;
-    }
-
-    bool isGoodArg(std::tuple<Type, int, int> p1, std::tuple<Type, int, int> p2) {
+    bool areGoodArgs(std::vector<std::tuple<Type, int, int>> program) {
         return true;
     }
 

@@ -45,11 +45,18 @@ Synthesizer::Synthesizer() {
     pushOperation(new GreaterThanOp());
 //    pushOperation(new LessThanOp());
     pushOperation(new IntEqualsOp());
-    pushOperation(new ListAddItemOp());
+//    pushOperation(new ListAddItemOp());
 
     printAllOperations();
 }
 
+
+void printVector(std::string s, std::vector<int> v) {
+    std::cout << s;
+    for (auto i : v)
+        std::cout << " " << i;
+    std::cout << std::endl;
+}
 
 Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost::any>, boost::any>> samples) {
 
@@ -69,89 +76,96 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
         }
     }
 
+    // level is the current level we are building programs for
     int level = 1;
 
     // Could add a time limit here with the while loop
-    while (level < 4) {
+    while (level < 3) {
         std::cout << std::endl << "LEVEL " << level << std::endl;
         // For each set of operations separated by arg types
         for (auto it : allOperations) {
             std::vector<Type> inputTypes = it.first;
             std::vector<Operation *> operations = it.second;
+            int numArgs = (int)inputTypes.size();
 
             // For each operation in this set
             for (auto op : operations) {
                 bool opIsRightReturnType = (returnType == op->retType);
+                bool isSymmetric = op->isSymmetric;
 
-                std::cout << std::endl << "New Operation: " << op->name() << op->printType() << std::endl;
+                std::cout << std::endl << "Operation: " << op->name() << op->printType() << std::endl;
 
                 // Create vector of "children" to hold the child Programs of the new Program we are creating
                 std::vector<std::tuple<Type, int, int>> children;
 
-                // The first child must only consider programs from current level - 1 (if the operation is composable)
-                int startLevel = op->isComposable ? level - 1 : 0;
-                for ( ; startLevel < level; startLevel++) {
-                    int child1NumPrograms = programContainer->size(inputTypes[0], startLevel);
-                    for (int index = 0; index < child1NumPrograms; index++) {
-                        // Create the tuple to represent the child 1 Program.
-                        std::tuple<Type, int, int> child1{inputTypes[0], startLevel, index};
+                // Add dummy data to children to overwrite later
+                std::tuple<Type, int, int> dummy {Type::TInt, -1, -1};
+                for (int i = 0; i < numArgs; i++) {
+                    children.push_back(dummy);
+                }
 
-                        // Check if this program is sensible for the given operation
-                        if (op->isGoodArg(child1)) {
-                            children.push_back(child1);
-                        } else {
-                            continue;
+                // Represents the max level we are pulling from for each argument. Generally this is always the same number.
+                std::vector<int> numLevels;
+                for (int i = 0; i < numArgs; i++) {
+                    numLevels.push_back(level - 1);
+                }
+                printVector("numLevels", numLevels);
+
+                // Represents the current levels we are pulling programs from, for each argument in the operation
+                std::vector<int> argLevels;
+
+                // If the operation is symmetric, then we can force the first argument to always be from level - 1
+                // The rest of the args start at level 0
+                argLevels.push_back(isSymmetric ? level - 1 : 0);
+                for (int i = 1; i < numArgs; i++) {
+                    argLevels.push_back(0);
+                }
+
+                // Loop until all level combinations are exhausted
+                while (argLevels != std::vector<int>()) {
+                    // Ensure at least ONE level is from the max: level - 1
+                    while (!atLeastOneMax(argLevels, numLevels)) {
+                        argLevels = getNextLevels(isSymmetric, argLevels, numLevels);
+                    }
+                    printVector("argLevels", argLevels);
+                    // Represents sizes of the current level each arg is pulling from.
+                    std::vector<int> levelSizes;
+                    for (int argNum = 0; argNum < numArgs; argNum++) {
+                        levelSizes.push_back( programContainer->size(inputTypes[argNum], argLevels[argNum]) - 1);
+                    }
+                    printVector("levelSizes", levelSizes);
+
+                    // Represents, for each argument in the operation, the index of the program we are grabbing.
+                    std::vector<int> programIndices;
+
+                    // Even if the op is symmetric, we still want to cover all program combinations at a given level.
+                    // Initialize program indices.
+                    for (int i = 0; i < numArgs; i++) {
+                        programIndices.push_back(0);
+                    }
+
+                    // Loop through all programs at the given level combination
+                    while (programIndices != std::vector<int>()) {
+                        printVector("programIndices", programIndices);
+
+                        for (int argNum = 0; argNum < numArgs; argNum++) {
+                            std::tuple<Type, int, int> child {inputTypes[argNum], argLevels[argNum], programIndices[argNum]};
+                            children[argNum] = child;
                         }
 
-                        // Assume only 1 or 2 inputs at this time. Generalize later if possible
-                        if (inputTypes.size() == 1) {
-                            Program newProgram(op, children);
+                        // Check if children are good fit!
+                        if (op->areGoodArgs(children)) {
 
-                            // Check if this program satisfies all sample input/outputs.
+                            Program newProgram(op, children);
                             if (opIsRightReturnType && newProgram.satisfiesSamples(samples)) {
                                 return newProgram;
                             }
                             programContainer->push(newProgram, level);
                         }
-
-                        else if (inputTypes.size() == 2) {
-                            // Put dummy data in the second spot to overwrite in loop
-                            std::tuple<Type, int, int> dummy{Type::TInt, -1, -1};
-                            children.push_back(dummy);
-
-                            // The second child can be a Program from any previous level
-                            for (int anyLevel = 0; anyLevel < level; anyLevel++) {
-                                int child2NumPrograms = programContainer->size(inputTypes[1], anyLevel);
-
-                                // If we have a symmetric operation, skip any instances of repeat Programs
-                                // that are simply on swapped sides of the operator (e.g. A == B, and B == A)
-                                int index2 = 0;
-                                if (op->isSymmetric && anyLevel == startLevel) {
-                                    index2 = index;
-                                }
-                                for (; index2 < child2NumPrograms; index2++) {
-                                    // Create the tuple to represent the child 2 Program
-                                    std::tuple<Type, int, int> child2{inputTypes[1], anyLevel, index2};
-
-                                    // Check that both args are good for this operator
-                                    if (op->isGoodArg(child1, child2)) {
-                                        children.at(1) = child2;
-
-                                        Program newProgram(op, children);
-                                        if (opIsRightReturnType && newProgram.satisfiesSamples(samples)) {
-                                            return newProgram;
-                                        }
-                                        programContainer->push(newProgram, level);
-                                    }
-                                }
-                            }
-                        }
-
-                        else { //TODO: Can probably handle this more gracefully
-                            throw std::invalid_argument("Operators with > 2 args not currently accepted.");
-                        }
-                        children.clear();
+                        programIndices = getNextPrograms(isSymmetric, programIndices, levelSizes, argLevels);
                     }
+
+                    argLevels = getNextLevels(isSymmetric, argLevels, numLevels);
                 }
             }
         }
@@ -159,6 +173,82 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
     }
     //programContainer->printAllPrograms();
     throw std::runtime_error("Could not find program within allotted time");
+}
+
+
+// Checks that at least one digit in current contains a max value, as defined in the "max" vector
+// @param current - vector of digits
+// @param max - vector of maximum values that digits in current can increase up to
+bool Synthesizer::atLeastOneMax(std::vector<int> current, std::vector<int> max) {
+    for (int i = 0; i < current.size(); i++) {
+        if (current[i] == max[i])
+            return true;
+    }
+    return false;
+}
+
+
+// Helper function to return the next valid number combination.
+// EX: getNextCombo(false, {0,0}, {2,4}) --> {0,1}
+// EX: getNextCombo(false, {0,4}, {2,4}) --> {1,0}
+// EX: getNextCombo(false, {2,4}, {2,4}) --> {}
+// The isSymmetric part is confusing, but basically forces the next combination to not have been a permutation
+// of any previously returned combination.
+// EX: getNextCombo(true, {1,4}, {2,4}) --> {2,2},because the next ones {2,0}, {2,1} have already come up as {0,2}, {1,2}.
+std::vector<int> Synthesizer::getNextLevels(bool isSymmetric, std::vector<int> current, std::vector<int> max) {
+    if (current.size() != max.size()) {
+        throw std::invalid_argument("Vector size mismatch! current.size() != max.size()");
+    }
+
+    int i = current.size() - 1;
+    while (i >= 0) {
+        // General case, if we can increase a digit, do it.
+        if (current[i] != max[i]) {
+            current[i]++;
+            // If symmetric, set all numbers to RIGHT equal to this number. This avoids repeating permutations
+            if (isSymmetric)
+                for (int j = i+1; j < current.size(); j++) {
+                    current[j] = current[i];
+                }
+            return current;
+        }
+        // If we have reached the max digit at position i, try the one to the left.
+        else {
+            current[i] = 0;
+            i--;
+        }
+    }
+    // Return empty vector when there are no more valid combinations
+    return std::vector<int>();
+}
+
+
+std::vector<int> Synthesizer::getNextPrograms(bool isSymmetric, std::vector<int> current, std::vector<int> max, std::vector<int> currentLevels) {
+    if (current.size() != max.size()) {
+        throw std::invalid_argument("Vector size mismatch! current.size() != max.size()");
+    }
+
+    int i = current.size() - 1;
+    while (i >= 0) {
+        // General case, if we can increase a digit, do it.
+        if (current[i] != max[i]) {
+            current[i]++;
+            // If symmetric, set all numbers to RIGHT equal to this number. This avoids repeating permutations
+            // For this to work with programs, all must be on same level
+            if (isSymmetric && std::adjacent_find(currentLevels.begin(), currentLevels.end(), std::not_equal_to<int>() ) == currentLevels.end() )
+                for (int j = i+1; j < current.size(); j++) {
+                    current[j] = current[i];
+                }
+            return current;
+        }
+            // If we have reached the max digit at position i, try the one to the left.
+        else {
+            current[i] = 0;
+            i--;
+        }
+    }
+    // Return empty vector when there are no more valid combinations
+    return std::vector<int>();
 }
 
 

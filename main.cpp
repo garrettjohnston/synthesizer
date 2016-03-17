@@ -39,9 +39,9 @@ int main (int argc, char *argv[]) {
     l3.addToList(-15);
 
 	std::vector<std::pair<std::vector<boost::any>, boost::any>> samples;
-	samples.push_back({v, boost::any(l1)});
-	samples.push_back({v2, boost::any(l2)});
-	samples.push_back({v3, boost::any(l3)});
+	samples.push_back({v, boost::any(21)});
+	samples.push_back({v2, boost::any(80)});
+	samples.push_back({v3, boost::any(10)});
 
 	auto p = s.findFittingProgram(samples);
 

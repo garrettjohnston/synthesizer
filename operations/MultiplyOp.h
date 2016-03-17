@@ -42,22 +42,23 @@ public:
         return "MultiplyOp";
     }
 
-    bool isGoodArg(std::tuple<Type, int, int> p) {
-        Program &program = programContainer->get(p);
-        IdentityOp *b = dynamic_cast<IdentityOp *>(program.operation);
-        if (b != NULL) {
-            IdentityOp *op = (IdentityOp *) program.operation;
-            int i = boost::any_cast<int>(op->val);
-            if (i == 0 || i == 1) {
-                return false;
+    bool areGoodArgs(std::vector<std::tuple<Type, int, int>> programs) {
+        if (programs.size() != 2) {
+            return false;
+        }
+
+        for (int i = 0; i < 2; i++) {
+            Program &program = programContainer->get(programs[i]);
+            IdentityOp *op = dynamic_cast<IdentityOp *>(program.operation);
+            if (op != NULL) {
+                int i = boost::any_cast<int>(op->val);
+                if (i == 0 || i == 1) {
+                    return false;
+                }
             }
         }
 
         return true;
-    }
-
-    bool isGoodArg(std::tuple<Type, int, int> p1, std::tuple<Type, int, int> p2) {
-        return isGoodArg(p1) && isGoodArg(p2);
     }
 
     // Check ONE level deep for redundant expressions. e.g. (i*j) == (i*(1+1)) is equiv to j == (1+1)

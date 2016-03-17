@@ -14,33 +14,10 @@
 
 class IdentityOp: public Operation {
 public:
-// TODO: Think about making this generic. One constructor that takes a boost::any (and maybe the Type too)
     boost::any val;
-    IdentityOp(int i) {
-        val = boost::any(i);
-        retType = Type::TInt;
-        initFunction();
-    }
-
-    IdentityOp(bool b) {
-        val = boost::any(b);
-        retType = Type::TBool;
-        initFunction();
-    }
-
-    IdentityOp(std::string s) {
-        val = boost::any(s);
-        retType = Type::TStr;
-        initFunction();
-    }
-
-    IdentityOp(List l) {
-        val = boost::any(l);
-        retType = Type::TList;
-        initFunction();
-    }
-
-    void initFunction() {
+    IdentityOp(boost::any v) {
+        val = v;
+        retType = getTypeOfAny(v);
         f = [this](std::vector<boost::any> args) {
             return this->val;
         };
@@ -58,11 +35,7 @@ public:
         return "IdentityOp";
     }
 
-    bool isGoodArg(std::tuple<Type, int, int> p) {
-        return true;
-    }
-
-    bool isGoodArg(std::tuple<Type, int, int> p1, std::tuple<Type, int, int> p2) {
+    bool areGoodArgs(std::vector<std::tuple<Type, int, int>> program) {
         return true;
     }
 

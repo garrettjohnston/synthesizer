@@ -23,8 +23,7 @@ public:
 	std::string printType();
 	virtual std::string toString(std::vector<std::tuple<Type, int, int>>) = 0;
 	virtual std::string name() = 0;
-    virtual bool isGoodArg(std::tuple<Type, int, int> program) = 0;
-    virtual bool isGoodArg(std::tuple<Type, int, int> p1, std::tuple<Type, int, int> p2) = 0;
+    virtual bool areGoodArgs(std::vector<std::tuple<Type, int, int>> program) = 0;
     virtual bool isRedundant(std::vector<std::tuple<Type, int, int>> p1, std::vector<std::tuple<Type, int, int>> p2) = 0;
 
     static ProgramContainer* programContainer;

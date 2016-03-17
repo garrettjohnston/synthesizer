@@ -22,15 +22,22 @@ public:
     Program findFittingProgram(std::vector<std::pair<std::vector<boost::any>, boost::any>> samples);
 
     void printAllOperations();
+
 private:
     // Container that holds all programs
-    static ProgramContainer* programContainer;
+    static ProgramContainer *programContainer;
 
     // Adds an operation to the Synthesizer's list of operations to use during search for a Program
     void pushOperation(Operation *op);
 
     // Map from operations arg type to operations
-    std::map<std::vector<Type>, std::vector<Operation*>> allOperations;
+    std::map<std::vector<Type>, std::vector<Operation *>> allOperations;
+
+    std::vector<int> getNextLevels(bool isSymmetric, std::vector<int> current, std::vector<int> max);
+    bool atLeastOneMax(std::vector<int> current, std::vector<int> max);
+    std::vector<int> getNextPrograms(bool isSymmetric, std::vector<int> current, std::vector<int> max, std::vector<int> currentLevels);
+
+
 };
 
 // static initialization

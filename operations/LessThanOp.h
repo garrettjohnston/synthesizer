@@ -40,25 +40,25 @@ public:
         return "LessThanOp";
     }
 
-    bool isGoodArg(std::tuple<Type, int, int> p) {
+    bool areGoodArgs(std::vector<std::tuple<Type, int, int>> program) {
         return true;
     }
-
-    bool isGoodArg(std::tuple<Type, int, int> p1, std::tuple<Type, int, int> p2) {
-        Program& program1 = programContainer->get(p1);
-        Program& program2 = programContainer->get(p2);
-        // Don't allow the same program on both sides of < sign
-        if (p1 == p2) {
-            return false;
-        }
-        // Check for redundancy in child Programs
-        if (program1.operation == program2.operation &&
-            program1.operation->isRedundant(program1.children, program2.children)) {
-            return false;
-        }
-
-        return true;
-    }
+//
+//    bool isGoodArg(std::tuple<Type, int, int> p1, std::tuple<Type, int, int> p2) {
+//        Program& program1 = programContainer->get(p1);
+//        Program& program2 = programContainer->get(p2);
+//        // Don't allow the same program on both sides of < sign
+//        if (p1 == p2) {
+//            return false;
+//        }
+//        // Check for redundancy in child Programs
+//        if (program1.operation == program2.operation &&
+//            program1.operation->isRedundant(program1.children, program2.children)) {
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
     bool isRedundant(std::vector<std::tuple<Type, int, int>> p1, std::vector<std::tuple<Type, int, int>> p2) {
         return false;
