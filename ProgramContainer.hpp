@@ -37,12 +37,13 @@ int ProgramContainer::size(Type returnType, int level) {
 }
 
 void ProgramContainer::push(Program p, int level) {
-    std::cout << "Program: " << p.printId() << " -- " << p.toString();
+//    std::cout << "Program: " << p.printId() << " -- " << p.toString() << std::endl;
     // Currently doing this just to print the evaluated value. This makes run time much slower btw...
-    std::vector<boost::any> v;
-    v.push_back(boost::any(15));
-    v.push_back(boost::any(20));
-    std::cout << " evaluates to " << utils::toString(p.evaluate(v)) << std::endl;
+//    std::vector<boost::any> v;
+//    v.push_back(boost::any(15));
+//    v.push_back(boost::any(20));
+//    v.push_back(boost::any(false));
+//    std::cout << " evaluates to " << utils::toString(p.evaluate(v)) << std::endl;
 
     auto search = programs.find(p.getType());
     if (search != programs.end()) {

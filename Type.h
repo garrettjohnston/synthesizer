@@ -4,12 +4,22 @@
 #include <stdexcept>
 #include <boost/any.hpp>
 #include "userDefinedTypes/List.hpp"
+#include <utility>
+
 
 // TODO: Ideally, put all these special functions in some "Type" namespace without screwing everything else up
 
 enum class Type { TInt, TBool, TStr, TList };
 
 static std::string TypeNames[] { "Int", "Bool", "Str", "List" };
+
+// Add any primitives you want in here!
+static std::vector<std::pair<Type, std::vector<boost::any>>> primitives {
+        { std::make_pair<Type, std::vector<boost::any>>(Type::TInt, {0, 1}) },
+        { std::make_pair<Type, std::vector<boost::any>>(Type::TBool, {true, false}) },
+        { std::make_pair<Type, std::vector<boost::any>>(Type::TStr, {std::string("")}) },
+        { std::make_pair<Type, std::vector<boost::any>>(Type::TList, {List()}) }
+};
 
 // Annoying and ugly function, but it is necessary to get around c++ template/type issues.
 Type getTypeOfAny(boost::any val) {

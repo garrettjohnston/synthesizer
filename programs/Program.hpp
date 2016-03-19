@@ -64,17 +64,13 @@ std::string Program::printableType() {
 
 // Returns a string of the id of this program and the id's of it's children
 std::string Program::printId() {
-    std::string s("id ");
-    if (children.size() == 0) {
-        s += std::to_string(id);
-    } else if (children.size() == 1) {
-        s += std::to_string(id) + ", L " + std::to_string(programContainer->get(children[0]).id);
-    } else if (children.size() == 2) {
-        s += std::to_string(id) + ", L " + std::to_string(programContainer->get(children[0]).id)
-                                + ", R " + std::to_string(programContainer->get(children[1]).id);
-    } else {
-        s += ("More than 2 children");
+    std::string s("id " + std::to_string(id));
+    s += "(";
+    for (int i = 0; i < children.size(); i++) {
+        s += std::to_string(programContainer->get(children[i]).id);
+        s += (i + 1 != children.size() ? "," : "");
     }
+    s += ")";
     return s;
 }
 

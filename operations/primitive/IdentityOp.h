@@ -15,9 +15,9 @@
 class IdentityOp: public Operation {
 public:
     boost::any val;
-    IdentityOp(boost::any v) {
+    IdentityOp(boost::any v, Type type) {
         val = v;
-        retType = getTypeOfAny(v);
+        retType = type;
         f = [this](std::vector<boost::any> args) {
             return this->val;
         };

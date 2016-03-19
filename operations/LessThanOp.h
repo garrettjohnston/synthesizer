@@ -39,25 +39,26 @@ public:
         return "LessThanOp";
     }
 
-    bool areGoodArgs(std::vector<std::tuple<Type, int, int>> program) {
+    bool areGoodArgs(std::vector<std::tuple<Type, int, int>> programs) {
+        if (programs.size() != 2) {
+            return false;
+        }
+
+        Program& program1 = programContainer->get(programs[0]);
+        Program& program2 = programContainer->get(programs[1]);
+        // Don't allow the same program on both sides of < sign
+        // Also don't allow < with only int values, there must be some input value.
+        if (program1.id == program2.id || (!program1.containsInputVal && !program2.containsInputVal)) {
+            return false;
+        }
+        // Check for redundancy in child Programs
+        if (program1.operation == program2.operation &&
+            program1.operation->isRedundant(program1.children, program2.children)) {
+            return false;
+        }
+
         return true;
     }
-//
-//    bool isGoodArg(std::tuple<Type, int, int> p1, std::tuple<Type, int, int> p2) {
-//        Program& program1 = programContainer->get(p1);
-//        Program& program2 = programContainer->get(p2);
-//        // Don't allow the same program on both sides of < sign
-//        if (p1 == p2) {
-//            return false;
-//        }
-//        // Check for redundancy in child Programs
-//        if (program1.operation == program2.operation &&
-//            program1.operation->isRedundant(program1.children, program2.children)) {
-//            return false;
-//        }
-//
-//        return true;
-//    }
 
     bool isRedundant(std::vector<std::tuple<Type, int, int>> p1, std::vector<std::tuple<Type, int, int>> p2) {
         return false;

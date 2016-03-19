@@ -19,6 +19,7 @@
 #include "operations/primitive/IdentityOp.h"
 #include "operations/primitive/SelectorOp.h"
 #include "operations/Operation.h"
+#include "operations/TernaryOp.h"
 #include "ProgramContainer.h"
 #include "Type.h"
 #include "Synthesizer.h"
@@ -30,23 +31,22 @@ Synthesizer::Synthesizer() {
     Program::programContainer = ProgramContainer::getInstance();
     Operation::programContainer = ProgramContainer::getInstance();
 
-
     // Add primitive values to level 0 of search tree
-    programContainer->push(Program(new IdentityOp(0)), 0);
-    programContainer->push(Program(new IdentityOp(1)), 0);
-    programContainer->push(Program(new IdentityOp(true)), 0);
-    programContainer->push(Program(new IdentityOp(false)), 0);
-    programContainer->push(Program(new IdentityOp(std::string(""))), 0);
-    programContainer->push(Program(new IdentityOp(List())), 0);
-
+    for (auto primitivesOfType : primitives) {
+        Type type = primitivesOfType.first;
+        for (auto value : primitivesOfType.second) {
+            programContainer->push(Program(new IdentityOp(value, type)), 0);
+        }
+    }
 
     // Put all operations here
     pushOperation(new AddOp());
     pushOperation(new MultiplyOp());
-    pushOperation(new GreaterThanOp());
+//    pushOperation(new GreaterThanOp());
 //    pushOperation(new LessThanOp());
-    pushOperation(new IntEqualsOp());
-    pushOperation(new ListAddItemOp());
+//    pushOperation(new IntEqualsOp());
+//    pushOperation(new ListAddItemOp());
+//    pushOperation(new TernaryOp());
 
     printAllOperations();
 }
@@ -83,7 +83,7 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
     int level = 1;
 
     // Could add a time limit here with the while loop
-    while (level < 4) {
+    while (level < 5) {
         std::cout << std::endl << "LEVEL " << level << std::endl;
         // For each set of operations separated by arg types
         for (auto it : allOperations) {
@@ -112,7 +112,6 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
                 for (int i = 0; i < numArgs; i++) {
                     numLevels.push_back(level - 1);
                 }
-//                printVector("numLevels", numLevels);
 
                 // Represents the current levels we are pulling programs from, for each argument in the operation
                 std::vector<int> argLevels;
@@ -132,18 +131,15 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
                     }
 
                     bool allLevelsSame = std::adjacent_find(argLevels.begin(), argLevels.end(), std::not_equal_to<int>() ) == argLevels.end();
-//                    printVector("argLevels", argLevels);
                     // Represents sizes of the current level each arg is pulling from.
                     std::vector<int> levelSizes;
                     for (int argNum = 0; argNum < numArgs; argNum++) {
                         levelSizes.push_back( programContainer->size(inputTypes[argNum], argLevels[argNum]) - 1);
                     }
-//                    printVector("levelSizes", levelSizes);
 
                     // Represents, for each argument in the operation, the index of the program we are grabbing.
                     std::vector<int> programIndices;
 
-                    // Even if the op is symmetric, we still want to cover all program combinations at a given level.
                     // Initialize program indices.
                     for (int i = 0; i < numArgs; i++) {
                         programIndices.push_back(0);
@@ -151,14 +147,12 @@ Program Synthesizer::findFittingProgram(std::vector<std::pair<std::vector<boost:
 
                     // Loop through all programs at the given level combination
                     while (programIndices != std::vector<int>()) {
-//                        printVector("programIndices", programIndices);
-
                         for (int argNum = 0; argNum < numArgs; argNum++) {
                             std::tuple<Type, int, int> child {inputTypes[argNum], argLevels[argNum], programIndices[argNum]};
                             children[argNum] = child;
                         }
 
-                        // Check if children are good fit!
+                        // Check if children are useful with this operation.
                         if (op->areGoodArgs(children)) {
 
                             Program newProgram(op, children);
@@ -205,7 +199,7 @@ std::vector<int> Synthesizer::getNextCombo(bool isSymmetric, std::vector<int> cu
         throw std::invalid_argument("Vector size mismatch! current.size() != max.size()");
     }
 
-    int i = current.size() - 1;
+    int i = (int)current.size() - 1;
     while (i >= 0) {
         // General case, if we can increase a digit, do it.
         if (current[i] != max[i]) {
@@ -241,7 +235,7 @@ void Synthesizer::pushOperation(Operation *op) {
     }
 }
 
-
+// Prints the operation names and signatures
 void Synthesizer::printAllOperations() {
     std::cout << "Operations:" << std::endl;
     for (auto it = allOperations.begin(); it != allOperations.end(); it++) {
@@ -251,13 +245,12 @@ void Synthesizer::printAllOperations() {
             std::cout << TypeNames[static_cast<int>(*it2)];
             if (std::next(it2) != it->first.end()) std::cout << ", ";
         }
-        std::cout << ") --> ANY ops" << std::endl;
-        std::cout << "(";
+        std::cout << ") --> ??? ops" << std::endl;
         for (auto it2 = it->second.begin(); it2 != it->second.end(); it2++) {
-            std::cout << (*it2)->printType();
-            if (std::next(it2) != it->second.end()) std::cout << ", ";
+            auto op = *it2;
+            std::cout << "\t" << op->name() << " " << op->printType() << std::endl;
         }
-        std::cout << ")" << std::endl;
+        std::cout << std::endl;
     }
 }
 
